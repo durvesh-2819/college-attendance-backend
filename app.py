@@ -4,12 +4,11 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from datetime import datetime, timedelta
 import os
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 
-# ==========================================
+
+# =====================================================
 # TEACHER LOGIN SETTINGS
-# ==========================================
+# =====================================================
 
 TEACHER_EMAIL = "teacher@gmail.com"
 TEACHER_PASSWORD = "123456"
@@ -20,6 +19,7 @@ TEACHER_PASSWORD = "123456"
 # =====================================================
 
 app = Flask(__name__)
+
 CORS(app)
 
 
@@ -27,7 +27,9 @@ CORS(app)
 # EXCEL SETTINGS
 # =====================================================
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 EXCEL_FOLDER = os.path.join(
     BASE_DIR,
@@ -39,13 +41,20 @@ if not os.path.exists(EXCEL_FOLDER):
 
 
 # =====================================================
-# BRANCH FILE NAME
+# BRANCH EXCEL FILE
 # =====================================================
 
 def get_excel_file(class_name):
 
-    safe_name = class_name.replace(" ", "_")
-    safe_name = safe_name.replace("&", "and")
+    safe_name = str(class_name).replace(
+        " ",
+        "_"
+    )
+
+    safe_name = safe_name.replace(
+        "&",
+        "and"
+    )
 
     return os.path.join(
         EXCEL_FOLDER,
@@ -54,7 +63,7 @@ def get_excel_file(class_name):
 
 
 # =====================================================
-# COMMON EXCEL STYLES
+# EXCEL STYLES
 # =====================================================
 
 header_fill = PatternFill(
@@ -68,10 +77,22 @@ header_font = Font(
 )
 
 thin_border = Border(
-    left=Side(style="thin", color="D1D5DB"),
-    right=Side(style="thin", color="D1D5DB"),
-    top=Side(style="thin", color="D1D5DB"),
-    bottom=Side(style="thin", color="D1D5DB")
+    left=Side(
+        style="thin",
+        color="D1D5DB"
+    ),
+    right=Side(
+        style="thin",
+        color="D1D5DB"
+    ),
+    top=Side(
+        style="thin",
+        color="D1D5DB"
+    ),
+    bottom=Side(
+        style="thin",
+        color="D1D5DB"
+    )
 )
 
 
@@ -84,7 +105,9 @@ def style_header(sheet):
     for cell in sheet[1]:
 
         cell.fill = header_fill
+
         cell.font = header_font
+
         cell.alignment = Alignment(
             horizontal="center",
             vertical="center"
@@ -94,30 +117,28 @@ def style_header(sheet):
 
 
 # =====================================================
-# CREATE BRANCH EXCEL
+# CREATE BRANCH EXCEL FILE
 # =====================================================
 
 def create_excel_file(class_name):
 
-    file_path = get_excel_file(class_name)
-
-    # -----------------------------------------------
-    # CREATE FILE
-    # -----------------------------------------------
+    file_path = get_excel_file(
+        class_name
+    )
 
     if not os.path.exists(file_path):
 
         workbook = Workbook()
 
-        # -------------------------------------------
+        # =================================================
         # ATTENDANCE SHEET
-        # -------------------------------------------
+        # =================================================
 
-        sheet = workbook.active
+        attendance = workbook.active
 
-        sheet.title = "Attendance"
+        attendance.title = "Attendance"
 
-        sheet.append([
+        attendance.append([
             "Date",
             "Time",
             "Class",
@@ -127,11 +148,14 @@ def create_excel_file(class_name):
             "Status"
         ])
 
-        style_header(sheet)
+        style_header(
+            attendance
+        )
 
-        # -------------------------------------------
+
+        # =================================================
         # DAILY REPORT
-        # -------------------------------------------
+        # =================================================
 
         daily = workbook.create_sheet(
             "Daily Report"
@@ -145,11 +169,14 @@ def create_excel_file(class_name):
             "Attendance %"
         ])
 
-        style_header(daily)
+        style_header(
+            daily
+        )
 
-        # -------------------------------------------
+
+        # =================================================
         # WEEKLY REPORT
-        # -------------------------------------------
+        # =================================================
 
         weekly = workbook.create_sheet(
             "Weekly Report"
@@ -165,11 +192,14 @@ def create_excel_file(class_name):
             "Attendance %"
         ])
 
-        style_header(weekly)
+        style_header(
+            weekly
+        )
 
-        # -------------------------------------------
+
+        # =================================================
         # MONTHLY REPORT
-        # -------------------------------------------
+        # =================================================
 
         monthly = workbook.create_sheet(
             "Monthly Report"
@@ -183,13 +213,19 @@ def create_excel_file(class_name):
             "Attendance %"
         ])
 
-        style_header(monthly)
+        style_header(
+            monthly
+        )
 
-        workbook.save(file_path)
+
+        workbook.save(
+            file_path
+        )
 
         print(
             f"{class_name} Excel file created!"
         )
+
 
     return file_path
 
@@ -242,11 +278,17 @@ def update_reports(class_name):
         records.append({
 
             "date": row[0],
+
             "time": row[1],
+
             "className": row[2],
+
             "rollNo": row[3],
+
             "studentName": row[4],
+
             "gender": row[5],
+
             "status": row[6]
 
         })
@@ -269,16 +311,20 @@ def update_reports(class_name):
                 "absent": 0
             }
 
+
         if record["status"] == "Present":
 
-            daily_data[date]["present"] += 1
+            daily_data[
+                date
+            ]["present"] += 1
+
 
         elif record["status"] == "Absent":
 
-            daily_data[date]["absent"] += 1
+            daily_data[
+                date
+            ]["absent"] += 1
 
-
-    # Clear old data
 
     if daily_sheet.max_row > 1:
 
@@ -293,6 +339,7 @@ def update_reports(class_name):
     ):
 
         present = data["present"]
+
         absent = data["absent"]
 
         total = present + absent
@@ -307,11 +354,13 @@ def update_reports(class_name):
         )
 
         daily_sheet.append([
+
             date,
             present,
             absent,
             total,
             percentage
+
         ])
 
 
@@ -342,8 +391,9 @@ def update_reports(class_name):
             )
         )
 
-        sunday = monday + timedelta(
-            days=6
+        sunday = (
+            monday
+            + timedelta(days=6)
         )
 
         week_key = monday.strftime(
@@ -356,9 +406,11 @@ def update_reports(class_name):
             weekly_data[week_key] = {
 
                 "start": monday,
+
                 "end": sunday,
 
                 "present": 0,
+
                 "absent": 0
 
             }
@@ -370,14 +422,13 @@ def update_reports(class_name):
                 week_key
             ]["present"] += 1
 
+
         elif record["status"] == "Absent":
 
             weekly_data[
                 week_key
             ]["absent"] += 1
 
-
-    # Clear old weekly data
 
     if weekly_sheet.max_row > 1:
 
@@ -392,6 +443,7 @@ def update_reports(class_name):
     ):
 
         present = data["present"]
+
         absent = data["absent"]
 
         total = present + absent
@@ -404,6 +456,7 @@ def update_reports(class_name):
             if total > 0
             else 0
         )
+
 
         weekly_sheet.append([
 
@@ -418,8 +471,11 @@ def update_reports(class_name):
             ),
 
             present,
+
             absent,
+
             total,
+
             percentage
 
         ])
@@ -455,6 +511,7 @@ def update_reports(class_name):
             monthly_data[month_key] = {
 
                 "present": 0,
+
                 "absent": 0
 
             }
@@ -466,14 +523,13 @@ def update_reports(class_name):
                 month_key
             ]["present"] += 1
 
+
         elif record["status"] == "Absent":
 
             monthly_data[
                 month_key
             ]["absent"] += 1
 
-
-    # Clear old monthly data
 
     if monthly_sheet.max_row > 1:
 
@@ -488,6 +544,7 @@ def update_reports(class_name):
     ):
 
         present = data["present"]
+
         absent = data["absent"]
 
         total = present + absent
@@ -515,9 +572,13 @@ def update_reports(class_name):
         monthly_sheet.append([
 
             month_name,
+
             present,
+
             absent,
+
             total,
+
             percentage
 
         ])
@@ -528,10 +589,12 @@ def update_reports(class_name):
     # =================================================
 
     for sheet in [
+
         attendance_sheet,
         daily_sheet,
         weekly_sheet,
         monthly_sheet
+
     ]:
 
         for column in sheet.columns:
@@ -544,18 +607,12 @@ def update_reports(class_name):
 
             for cell in column:
 
-                try:
+                if cell.value:
 
-                    if cell.value:
-
-                        max_length = max(
-                            max_length,
-                            len(str(cell.value))
-                        )
-
-                except:
-
-                    pass
+                    max_length = max(
+                        max_length,
+                        len(str(cell.value))
+                    )
 
 
             sheet.column_dimensions[
@@ -585,70 +642,66 @@ def update_reports(class_name):
 
 
 # =====================================================
-# HOME ROUTE
+# HOME
 # =====================================================
 
-@app.route("/", methods=["GET"])
+@app.route(
+    "/",
+    methods=["GET"]
+)
 def home():
 
     return jsonify({
+
+        "success": True,
 
         "message":
         "College Attendance Backend is running!"
 
     })
 
+
 # =====================================================
 # TEACHER LOGIN
 # =====================================================
 
-
-
-@app.route("/api/login", methods=["POST"])
+@app.route(
+    "/api/teacher-login",
+    methods=["POST"]
+)
 def teacher_login():
 
     try:
 
         data = request.get_json()
 
-        email = data.get("email")
-        password = data.get("password")
-
-        # ======================================
-        # DEMO TEACHER ACCOUNT
-        # ======================================
-
-        correct_email = "teacher@gmail.com"
-        correct_password = "123456"
-
-        # ======================================
-        # CHECK LOGIN
-        # ======================================
-
-        if (
-            email == correct_email
-            and password == correct_password
-        ):
+        if not data:
 
             return jsonify({
 
-                "success": True,
+                "success": False,
 
-                "message": "Login successful",
+                "message":
+                "Login data is required"
 
-                "teacher": {
+            }), 400
 
-                    "email": email,
 
-                    "role": "teacher"
+        email = data.get(
+            "email",
+            ""
+        ).strip()
 
-                }
 
-            }), 200
+        password = data.get(
+            "password",
+            ""
+        )
 
-        # =============================================
+
+        # =================================================
         # CHECK LOGIN
-        # =============================================
+        # =================================================
 
         if (
             email == TEACHER_EMAIL
@@ -663,33 +716,45 @@ def teacher_login():
                 "Login successful",
 
                 "teacher": {
-                    "email": TEACHER_EMAIL,
-                    "role": "Teacher"
+
+                    "email":
+                    TEACHER_EMAIL,
+
+                    "role":
+                    "teacher"
+
                 }
 
             }), 200
 
-        # =============================================
+
+        # =================================================
         # INVALID LOGIN
-        # =============================================
+        # =================================================
 
         return jsonify({
 
             "success": False,
 
-            "message": "Invalid email or password"
+            "message":
+            "Invalid email or password"
 
         }), 401
 
+
     except Exception as error:
 
-        print("Login Error:", error)
+        print(
+            "Login Error:",
+            error
+        )
 
         return jsonify({
 
             "success": False,
 
-            "message": str(error)
+            "message":
+            str(error)
 
         }), 500
 
@@ -707,6 +772,7 @@ def mark_attendance():
     try:
 
         data = request.get_json()
+
 
         class_name = data.get(
             "className"
@@ -738,6 +804,7 @@ def mark_attendance():
             return jsonify({
 
                 "success": False,
+
                 "message":
                 "Class name is required"
 
@@ -749,6 +816,7 @@ def mark_attendance():
             return jsonify({
 
                 "success": False,
+
                 "message":
                 "Roll number is required"
 
@@ -760,6 +828,7 @@ def mark_attendance():
             return jsonify({
 
                 "success": False,
+
                 "message":
                 "Student name is required"
 
@@ -774,6 +843,7 @@ def mark_attendance():
             return jsonify({
 
                 "success": False,
+
                 "message":
                 "Invalid attendance status"
 
@@ -788,10 +858,6 @@ def mark_attendance():
             class_name
         )
 
-
-        # =================================================
-        # OPEN BRANCH EXCEL
-        # =================================================
 
         workbook = load_workbook(
             file_path
@@ -821,8 +887,6 @@ def mark_attendance():
         # CHECK DUPLICATE
         # =================================================
 
-        already_marked = False
-
         for row in sheet.iter_rows(
             min_row=2,
             values_only=True
@@ -831,26 +895,25 @@ def mark_attendance():
             if (
 
                 row[0] == current_date
-                and str(row[3]) == str(roll_no)
-                and row[2] == class_name
+
+                and str(row[3])
+                == str(roll_no)
+
+                and row[2]
+                == class_name
 
             ):
 
-                already_marked = True
+                workbook.close()
 
-                break
+                return jsonify({
 
+                    "success": False,
 
-        if already_marked:
+                    "message":
+                    "Attendance already marked for today"
 
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                "Attendance already marked for today"
-
-            }), 409
+                }), 409
 
 
         # =================================================
@@ -860,11 +923,17 @@ def mark_attendance():
         sheet.append([
 
             current_date,
+
             current_time,
+
             class_name,
+
             roll_no,
+
             student_name,
+
             gender,
+
             status
 
         ])
@@ -873,6 +942,8 @@ def mark_attendance():
         workbook.save(
             file_path
         )
+
+        workbook.close()
 
 
         # =================================================
@@ -885,10 +956,12 @@ def mark_attendance():
 
 
         print(
+
             f"Attendance saved: "
             f"{student_name} - "
             f"{class_name} - "
             f"{status}"
+
         )
 
 
@@ -917,7 +990,7 @@ def mark_attendance():
     except Exception as error:
 
         print(
-            "ERROR:",
+            "Attendance Error:",
             error
         )
 
@@ -946,16 +1019,9 @@ def get_attendance():
         attendance_data = []
 
 
-        # =================================================
-        # BRANCH FILES
-        # =================================================
-
-        files = os.listdir(
+        for file_name in os.listdir(
             EXCEL_FOLDER
-        )
-
-
-        for file_name in files:
+        ):
 
             if not file_name.endswith(
                 "_Attendance.xlsx"
@@ -976,7 +1042,12 @@ def get_attendance():
             )
 
 
-            if "Attendance" not in workbook.sheetnames:
+            if (
+                "Attendance"
+                not in workbook.sheetnames
+            ):
+
+                workbook.close()
 
                 continue
 
@@ -1031,7 +1102,7 @@ def get_attendance():
     except Exception as error:
 
         print(
-            "ERROR:",
+            "Attendance GET Error:",
             error
         )
 
@@ -1046,7 +1117,7 @@ def get_attendance():
 
 
 # =====================================================
-# DASHBOARD
+# DASHBOARD DATA
 # =====================================================
 
 @app.route(
@@ -1062,9 +1133,15 @@ def dashboard_data():
         )
 
 
+        # =================================================
+        # TOTAL STUDENTS
+        # =================================================
+
         total_students = 180
 
+
         present = 0
+
         absent = 0
 
 
@@ -1095,6 +1172,16 @@ def dashboard_data():
             )
 
 
+            if (
+                "Attendance"
+                not in workbook.sheetnames
+            ):
+
+                workbook.close()
+
+                continue
+
+
             sheet = workbook[
                 "Attendance"
             ]
@@ -1114,6 +1201,7 @@ def dashboard_data():
 
                     present += 1
 
+
                 elif row[6] == "Absent":
 
                     absent += 1
@@ -1121,6 +1209,10 @@ def dashboard_data():
 
             workbook.close()
 
+
+        # =================================================
+        # CALCULATE PERCENTAGE
+        # =================================================
 
         total_marked = (
             present + absent
@@ -1135,8 +1227,8 @@ def dashboard_data():
             attendance_percentage = round(
 
                 (
-                    present /
-                    total_marked
+                    present
+                    / total_marked
                 ) * 100,
 
                 2
