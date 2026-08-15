@@ -737,6 +737,7 @@ def home():
 def teacher_login():
 
     try:
+
         data = request.get_json()
 
         if not data:
@@ -745,52 +746,19 @@ def teacher_login():
                 "message": "Login data is required"
             }), 400
 
-        email = str(data.get("email", "")).strip().lower()
-        password = str(data.get("password", "")).strip()
+        email = str(
+            data.get("email", "")
+        ).strip().lower()
+
+        password = str(
+            data.get("password", "")
+        ).strip()
 
         print("LOGIN EMAIL:", email)
 
-        if email not in TEACHERS:
-            print("TEACHER NOT FOUND")
-            return jsonify({
-                "success": False,
-                "message": "Invalid email or password"
-            }), 401
-
-        teacher = TEACHERS[email]
-
-        if password != teacher["password"]:
-            print("WRONG PASSWORD")
-            return jsonify({
-                "success": False,
-                "message": "Invalid email or password"
-            }), 401
-
-        print("LOGIN SUCCESS:", email)
-
-        return jsonify({
-            "success": True,
-            "message": "Login successful",
-            "teacher": {
-                "email": email,
-                "name": teacher["name"],
-                "role": teacher["role"]
-            }
-        }), 200
-
-    except Exception as error:
-
-        print("Login Error:", error)
-
-        return jsonify({
-            "success": False,
-            "message": str(error)
-        }), 500
-
-
-        # =================================================
-        # CHECK ALL TEACHERS
-        # =================================================
+        # ==============================================
+        # CHECK TEACHER LOGIN
+        # ==============================================
 
         for teacher in TEACHERS:
 
@@ -799,42 +767,45 @@ def teacher_login():
                 and password == teacher["password"]
             ):
 
+                print(
+                    "LOGIN SUCCESS:",
+                    email
+                )
+
                 return jsonify({
 
                     "success": True,
 
-                    "message":
-                    "Login successful",
+                    "message": "Login successful",
 
                     "teacher": {
 
-                        "email":
-                        teacher["email"],
+                        "email": teacher["email"],
 
-                        "name":
-                        teacher["name"],
+                        "name": teacher["name"],
 
-                        "role":
-                        teacher["role"]
+                        "role": teacher["role"]
 
                     }
 
                 }), 200
 
-
-        # =================================================
+        # ==============================================
         # INVALID LOGIN
-        # =================================================
+        # ==============================================
+
+        print(
+            "INVALID LOGIN:",
+            email
+        )
 
         return jsonify({
 
             "success": False,
 
-            "message":
-            "Invalid email or password"
+            "message": "Invalid email or password"
 
         }), 401
-
 
     except Exception as error:
 
@@ -847,8 +818,7 @@ def teacher_login():
 
             "success": False,
 
-            "message":
-            "Login server error"
+            "message": "Login server error"
 
         }), 500
 
