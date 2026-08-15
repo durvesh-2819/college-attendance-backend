@@ -733,42 +733,59 @@ def home():
 # TEACHER LOGIN
 # =====================================================
 
-@app.route(
-    "/api/teacher-login",
-    methods=["POST"]
-)
+@app.route("/api/teacher-login", methods=["POST"])
 def teacher_login():
 
     try:
-
         data = request.get_json()
 
         if not data:
-
             return jsonify({
-
                 "success": False,
-
-                "message":
-                "Login data is required"
-
+                "message": "Login data is required"
             }), 400
 
+        email = str(data.get("email", "")).strip().lower()
+        password = str(data.get("password", "")).strip()
 
-        email = str(
-            data.get(
-                "email",
-                ""
-            )
-        ).strip().lower()
+        print("LOGIN EMAIL:", email)
 
+        if email not in TEACHERS:
+            print("TEACHER NOT FOUND")
+            return jsonify({
+                "success": False,
+                "message": "Invalid email or password"
+            }), 401
 
-        password = str(
-            data.get(
-                "password",
-                ""
-            )
-        ).strip()
+        teacher = TEACHERS[email]
+
+        if password != teacher["password"]:
+            print("WRONG PASSWORD")
+            return jsonify({
+                "success": False,
+                "message": "Invalid email or password"
+            }), 401
+
+        print("LOGIN SUCCESS:", email)
+
+        return jsonify({
+            "success": True,
+            "message": "Login successful",
+            "teacher": {
+                "email": email,
+                "name": teacher["name"],
+                "role": teacher["role"]
+            }
+        }), 200
+
+    except Exception as error:
+
+        print("Login Error:", error)
+
+        return jsonify({
+            "success": False,
+            "message": str(error)
+        }), 500
 
 
         # =================================================
