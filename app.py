@@ -10,8 +10,44 @@ import os
 # TEACHER LOGIN SETTINGS
 # =====================================================
 
-TEACHER_EMAIL = "teacher@gmail.com"
-TEACHER_PASSWORD = "123456"
+TEACHERS = [
+
+    {
+        "email": "teacher@gmail.com",
+        "password": "123456",
+        "name": "Admin Teacher",
+        "role": "teacher"
+    },
+
+    {
+        "email": "cse@college.com",
+        "password": "cse123",
+        "name": "CSE Teacher",
+        "role": "teacher"
+    },
+
+    {
+        "email": "it@college.com",
+        "password": "it123",
+        "name": "IT Teacher",
+        "role": "teacher"
+    },
+
+    {
+        "email": "aids@college.com",
+        "password": "aids123",
+        "name": "AI & DS Teacher",
+        "role": "teacher"
+    },
+
+    {
+        "email": "entc@college.com",
+        "password": "entc123",
+        "name": "ENTC Teacher",
+        "role": "teacher"
+    }
+
+]
 
 
 # =====================================================
@@ -37,6 +73,7 @@ EXCEL_FOLDER = os.path.join(
 )
 
 if not os.path.exists(EXCEL_FOLDER):
+
     os.makedirs(EXCEL_FOLDER)
 
 
@@ -273,6 +310,7 @@ def update_reports(class_name):
     ):
 
         if not row[0]:
+
             continue
 
         records.append({
@@ -307,8 +345,11 @@ def update_reports(class_name):
         if date not in daily_data:
 
             daily_data[date] = {
+
                 "present": 0,
+
                 "absent": 0
+
             }
 
 
@@ -345,20 +386,28 @@ def update_reports(class_name):
         total = present + absent
 
         percentage = (
+
             round(
                 (present / total) * 100,
                 2
             )
+
             if total > 0
+
             else 0
+
         )
 
         daily_sheet.append([
 
             date,
+
             present,
+
             absent,
+
             total,
+
             percentage
 
         ])
@@ -385,15 +434,21 @@ def update_reports(class_name):
 
 
         monday = (
+
             date_obj
+
             - timedelta(
                 days=date_obj.weekday()
             )
+
         )
 
         sunday = (
+
             monday
+
             + timedelta(days=6)
+
         )
 
         week_key = monday.strftime(
@@ -449,12 +504,16 @@ def update_reports(class_name):
         total = present + absent
 
         percentage = (
+
             round(
                 (present / total) * 100,
                 2
             )
+
             if total > 0
+
             else 0
+
         )
 
 
@@ -550,12 +609,16 @@ def update_reports(class_name):
         total = present + absent
 
         percentage = (
+
             round(
                 (present / total) * 100,
                 2
             )
+
             if total > 0
+
             else 0
+
         )
 
 
@@ -591,8 +654,11 @@ def update_reports(class_name):
     for sheet in [
 
         attendance_sheet,
+
         daily_sheet,
+
         weekly_sheet,
+
         monthly_sheet
 
     ]:
@@ -623,7 +689,9 @@ def update_reports(class_name):
             )
 
 
-        # Borders
+        # =================================================
+        # BORDERS
+        # =================================================
 
         for row in sheet.iter_rows():
 
@@ -687,45 +755,54 @@ def teacher_login():
             }), 400
 
 
-        email = data.get(
-            "email",
-            ""
+        email = str(
+            data.get(
+                "email",
+                ""
+            )
+        ).strip().lower()
+
+
+        password = str(
+            data.get(
+                "password",
+                ""
+            )
         ).strip()
 
 
-        password = data.get(
-            "password",
-            ""
-        )
-
-
         # =================================================
-        # CHECK LOGIN
+        # CHECK ALL TEACHERS
         # =================================================
 
-        if (
-            email == TEACHER_EMAIL
-            and password == TEACHER_PASSWORD
-        ):
+        for teacher in TEACHERS:
 
-            return jsonify({
+            if (
+                email == teacher["email"].lower()
+                and password == teacher["password"]
+            ):
 
-                "success": True,
+                return jsonify({
 
-                "message":
-                "Login successful",
+                    "success": True,
 
-                "teacher": {
+                    "message":
+                    "Login successful",
 
-                    "email":
-                    TEACHER_EMAIL,
+                    "teacher": {
 
-                    "role":
-                    "teacher"
+                        "email":
+                        teacher["email"],
 
-                }
+                        "name":
+                        teacher["name"],
 
-            }), 200
+                        "role":
+                        teacher["role"]
+
+                    }
+
+                }), 200
 
 
         # =================================================
@@ -754,7 +831,7 @@ def teacher_login():
             "success": False,
 
             "message":
-            str(error)
+            "Login server error"
 
         }), 500
 
@@ -836,8 +913,11 @@ def mark_attendance():
 
 
         if status not in [
+
             "Present",
+
             "Absent"
+
         ]:
 
             return jsonify({
@@ -958,8 +1038,11 @@ def mark_attendance():
         print(
 
             f"Attendance saved: "
+
             f"{student_name} - "
+
             f"{class_name} - "
+
             f"{status}"
 
         )
@@ -1043,8 +1126,10 @@ def get_attendance():
 
 
             if (
+
                 "Attendance"
                 not in workbook.sheetnames
+
             ):
 
                 workbook.close()
@@ -1173,8 +1258,10 @@ def dashboard_data():
 
 
             if (
+
                 "Attendance"
                 not in workbook.sheetnames
+
             ):
 
                 workbook.close()
@@ -1227,8 +1314,10 @@ def dashboard_data():
             attendance_percentage = round(
 
                 (
+
                     present
                     / total_marked
+
                 ) * 100,
 
                 2
